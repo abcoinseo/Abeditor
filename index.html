@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AB Studio - Powerful Code Editor</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin: 30px 0;
+      animation: fadeIn 1.5s ease;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      color: #00e5ff;
+      text-shadow: 3px 3px 12px rgba(0, 229, 255, 0.7);
+    }
+
+    .tab-container {
+      background: #1b1b1b;
+      border: 2px solid #00e5ff;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 900px;
+      box-shadow: 0px 0px 30px rgba(0, 229, 255, 0.3);
+      overflow: hidden;
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: space-around;
+      background: #00e5ff;
+    }
+
+    .tab-buttons button {
+      flex-grow: 1;
+      padding: 15px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-weight: bold;
+      color: black;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .tab-buttons button.active {
+      background: #008c9e;
+      color: white;
+    }
+
+    .editor {
+      width: 100%;
+      height: 300px;
+      background: #000;
+      color: #00ff88;
+      padding: 15px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1rem;
+      border: none;
+      resize: none;
+      outline: none;
+      display: none;
+    }
+
+    .editor.active {
+      display: block;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .button-container button {
+      background: #00e5ff;
+      color: black;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 2px 2px 8px rgba(0, 229, 255, 0.4);
+    }
+
+    .button-container button:hover {
+      background: #008c9e;
+      transform: scale(1.1);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    footer {
+      margin-top: 20px;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: #00e5ff;
+      text-decoration: none;
+    }
+
+    iframe {
+      width: 100%;
+      height: 300px;
+      border: 2px solid #00e5ff;
+      background: #121212;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AB Studio</h1>
+  </header>
+
+  <div class="tab-container">
+    <div class="tab-buttons">
+      <button class="active" onclick="showEditor('html')">HTML</button>
+      <button onclick="showEditor('css')">CSS</button>
+      <button onclick="showEditor('js')">JavaScript</button>
+    </div>
+    <textarea class="editor active" id="html-editor" placeholder="Write your HTML code here..."></textarea>
+    <textarea class="editor" id="css-editor" placeholder="Write your CSS code here..."></textarea>
+    <textarea class="editor" id="js-editor" placeholder="Write your JavaScript code here..."></textarea>
+  </div>
+
+  <div class="button-container">
+    <button onclick="runCode()">Run Code</button>
+    <button onclick="downloadFiles()">Download as ZIP</button>
+    <button onclick="clearEditors()">Clear Editors</button>
+  </div>
+
+  <iframe id="output-frame"></iframe>
+
+  <footer>
+    <p>Designed with love by <a href="https://abstudiox.netlify.app/" target="_blank" rel="noopener noreferrer">AB Studio Team</a></p>
+  </footer>
+
+  <script>
+    const htmlEditor = document.getElementById('html-editor');
+    const cssEditor = document.getElementById('css-editor');
+    const jsEditor = document.getElementById('js-editor');
+    const outputFrame = document.getElementById('output-frame');
+    const tabButtons = document.querySelectorAll('.tab-buttons button');
+
+    function showEditor(type) {
+      const editors = document.querySelectorAll('.editor');
+      editors.forEach(editor => editor.classList.remove('active'));
+      document.getElementById(`${type}-editor`).classList.add('active');
+      tabButtons.forEach(button => button.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function runCode() {
+      const html = htmlEditor.value;
+      const css = `<style>${cssEditor.value}</style>`;
+      const js = `<script>${jsEditor.value}<\/script>`;
+      const frameDoc = outputFrame.contentDocument || outputFrame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(html + css + js);
+      frameDoc.close();
+    }
+
+    function clearEditors() {
+      htmlEditor.value = '';
+      cssEditor.value = '';
+      jsEditor.value = '';
+    }
+
+    function downloadFiles() {
+      const zip = new JSZip();
+      zip.file("index.html", htmlEditor.value);
+      zip.file("styles.css", cssEditor.value);
+      zip.file("script.js", jsEditor.value);
+      zip.generateAsync({ type: "blob" }).then(function(content) {
+        saveAs(content, "ab_studio_project.zip");
+      });
+    }
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</body>
+</html>
